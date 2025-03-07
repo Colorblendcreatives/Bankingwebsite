@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Boxicons CSS -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.cdnfonts.com/css/adobe-clean');
+        
+        body {
+            font-family: 'Adobe Clean', sans-serif;
+            background-color: #f8f9fa;
+        }
+        
+        .navbar {
+            background-color: #ff6b00 !important;
+        }
+        
+        .sidebar {
+            height: 100vh;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 56px;
+            left: 0;
+            width: 250px;
+            z-index: 1000;
+            padding-top: 20px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-item {
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            color: #495057;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-item:hover, .sidebar-item.active {
+            background-color: #fff5eb;
+            color: #ff6b00;
+            border-left: 3px solid #ff6b00;
+        }
+        
+        .sidebar-item i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            padding-top: 76px;
+            transition: all 0.3s;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 15px 20px;
+            font-weight: bold;
+        }
+        
+        .balance-card {
+            background: linear-gradient(135deg, #ff6b00, #ff9e5a);
+            color: white;
+        }
+        
+        .balance-card .card-header {
+            background: transparent;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .transaction-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+        
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #fff5eb;
+            color: #ff6b00;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .outgoing {
+            color: #dc3545;
+        }
+        
+        .incoming {
+            color: #28a745;
+        }
+        
+        .btn-orange {
+            background-color: #ff6b00;
+            border-color: #ff6b00;
+            color: white;
+        }
+        
+        .btn-orange:hover {
+            background-color: #e66000;
+            border-color: #e66000;
+            color: white;
+        }
+        
+        .btn-outline-orange {
+            border-color: #ff6b00;
+            color: #ff6b00;
+        }
+        
+        .btn-outline-orange:hover {
+            background-color: #ff6b00;
+            color: white;
+        }
+        
+        .profile-header {
+            background-color: #ff6b00;
+            color: white;
+            padding: 30px 0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid white;
+            overflow: hidden;
+        }
+        
+        /* Settings page specific styles */
+        .settings-card {
+            transition: all 0.3s ease;
+        }
+        
+        .settings-card:hover {
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .settings-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background-color: #fff5eb;
+            color: #ff6b00;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 15px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #ff6b00;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Responsive sidebar */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                overflow: hidden;
+            }
+            
+            .sidebar.show {
+                width: 250px;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }
+        
+        .navbar-toggler {
+            border: none;
+            outline: none !important;
+        }
+        
+        .navbar-toggler:focus {
+            box-shadow: none;
+        }
+        
+        #menu-toggle {
+            color: white;
+            font-size: 24px;
+        }
+        
+        /* Theme selector */
+        .theme-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin: 0 5px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .theme-option.active {
+            border-color: #212529;
+        }
+        
+        /* Content page visibility */
+        .content-page {
+            display: none;
+        }
+        
+        .content-page.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <button id="menu-toggle" class="btn">
+                <i class="bx bx-menu text-white"></i>
+            </button>
+            <a class="navbar-brand ms-2" href="#">MyBank</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="bx bx-bell"></i></a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bx bx-user-circle"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#profile">Profile</a></li>
+                            <li><a class="dropdown-item" href="#">Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <a href="#dashboard" class="sidebar-item active" data-page="dashboard">
+            <i class="bx bxs-dashboard"></i> Dashboard
+        </a>
+        <a href="#transactions" class="sidebar-item" data-page="transactions">
+            <i class="bx bx-transfer"></i> Transactions
+        </a>
+        <a href="#add-funds" class="sidebar-item" data-page="add-funds">
+            <i class="bx bx-plus-circle"></i> Add Funds
+        </a>
+        <a href="#profile" class="sidebar-item" data-page="profile">
+            <i class="bx bx-user"></i> Profile
+        </a>
+        <a href="#settings" class="sidebar-item" data-page="settings">
+            <i class="bx bx-cog"></i> Settings
+        </a>
+        <a href="#" class="sidebar-item">
+            <i class="bx bx-support"></i> Support
+        </a>
+        <a href="#" class="sidebar-item">
+            <i class="bx bx-log-out"></i> Logout
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Dashboard Page -->
+        <div class="content-page active" id="dashboard-page">
+            <h2 class="mb-4">Dashboard</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card balance-card mb-4">
+                        <div class="card-header">Total Balance</div>
+                        <div class="card-body">
+                            <h1 class="display-4">$12,569.42</h1>
+                            <p class="mb-0">Available balance</p>
+                            <div class="mt-3">
+                                <button class="btn btn-light me-2" onclick="showPage('add-funds')">
+                                    <i class="bx bx-plus-circle"></i> Add Funds
+                                </button>
+                                <button class="btn btn-outline-light">
+                                    <i class="bx bx-transfer-alt"></i> Transfer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span>Quick Actions</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-4 mb-3">
+                                    <a href="#" class="btn btn-light rounded-circle p-3 mb-2">
+                                        <i class="bx bx-send text-orange"></i>
+                                    </a>
+                                    <p class="small mb-0">Send</p>
+                                </div>
+                                <div class="col-4 mb-3">
+                                    <a href="#" class="btn btn-light rounded-circle p-3 mb-2">
+                                        <i class="bx bx-credit-card text-orange"></i>
+                                    </a>
+                                    <p class="small mb-0">Pay</p>
+                                </div>
+                                <div class="col-4 mb-3">
+                                    <a href="#" class="btn btn-light rounded-circle p-3 mb-2">
+                                        <i class="bx bx-money text-orange"></i>
+                                    </a>
+                                    <p class="small mb-0">Withdraw</p>
+                                </div>
+                                <div class="col-4">
+                                    <a href="#" class="btn btn-light rounded-circle p-3 mb-2">
+                                        <i class="bx bx-line-chart text-orange"></i>
+                                    </a>
+                                    <p class="small mb-0">Invest</p>
+                                </div>
+                                <div class="col-4">
+                                    <a href="#" class="btn btn-light rounded-circle p-3 mb-2">
+                                        <i class="bx bx-dollar-circle text-orange"></i>
+                                    </a>
+                                    <p class="small mb-0">Loans</p>
+                                </div>
+                                <div class="col-4">
+                                    <a href="#" class="btn btn-light rounded-circle p-3 mb-2">
+                                        <i class="bx bx-cog text-orange"></i>
+                                    </a>
+                                    <p class="small mb-0">More</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Recent Transactions</span>
+                    <a href="#transactions" class="btn btn-sm btn-outline-orange" onclick="showPage('transactions')">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="transaction-item d-flex align-items-center p-3">
+                        <div class="transaction-icon me-3">
+                            <i class="bx bx-shopping-bag"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="mb-0">Amazon Purchase</h6>
+                                <span class="outgoing">-$49.99</span>
+                            </div>
+                            <small class="text-muted">Mar 5, 2025 • Shopping</small>
+                        </div>
+                    </div>
+                    <div class="transaction-item d-flex align-items-center p-3">
+                        <div class="transaction-icon me-3">
+                            <i class="bx bx-coffee"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="mb-0">Starbucks</h6>
+                                <span class="outgoing">-$5.75</span>
+                            </div>
+                            <small class="text-muted">Mar 4, 2025 • Food & Drink</small>
+                        </div>
+                    </div>
+                    <div class="transaction-item d-flex align-items-center p-3">
+                        <div class="transaction-icon me-3">
+                            <i class="bx bx-dollar"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="mb-0">Salary Deposit</h6>
+                                <span class="incoming">+$3,250.00</span>
+                            </div>
+                            <small class="text-muted">Mar 1, 2025 • Income</small>
+                        </div>
+                    </div>
+                    <div class="transaction-item d-flex align-items-center p-3">
+                        <div class="transaction-icon me-3">
+                            <i class="bx bx-home"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="mb-0">Rent Payment</h6>
+                                <span class="outgoing">-$1,200.00</span>
+                            </div>
+                            <small class="text-muted">Mar 1, 2025 • Housing</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Transactions Page -->
+        <div class="content-page" id="transactions-page">
+            <h2 class="mb-4">Transaction History</h2>
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" placeholder="Search transactions...">
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select">
+                                <option selected>All Categories</option>
+                                <option>Shopping</option>
+                                <option>Food & Drink</option>
+                                <option>Housing</option>
+                                <option>Transportation</option>
+                                <option>Income</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select">
+                                <option selected>Last 30 Days</option>
+                                <option>Last 90 Days</option>
+                                <option>This Year</option>
+                                <option>Custom Range</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="transaction-item d-flex align-items-center p-3">
+                        <div class="transaction-icon me-3">
+                            <i class="bx bx-shopping-bag"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="mb-0">Amazon Purchase</h6>
+                                <span class="outgoing">-$49.99</span>
+                            </div>
+                            <small class="text-muted">Mar 5, 2025 • Shopping</small>
+                        </div>
+                    </div>
+                    <div class="transaction-item d-flex align-items-center p-3">
+                        <div class="transaction-icon me-3">
+                            <i class="bx bx-coffee"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="mb-0">Starbucks</h6>
+                                <span class="outgoing">-$5.75</span>
+                            </div>
+                            <small class="text-muted">Mar 4, 2025 • Food & Drink</small>
+                        </div>
+                    </div>
+                    <div class="transaction-item d-flex align-items-center p-3">
+                        <div class="transaction-icon me-3">
+                            <i class="bx bx-dollar"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="mb-0">Salary Deposit</h6>
+                                <span class="incoming">+$3,250.00</span>
+                            </div>
+                            <small class="text-muted">Mar 1, 2025 • Income</small>
+                        </div>
+                    </div>
+                    <div class="transaction-item d-flex align-items-center p-3">
+                        <div class="transaction-icon me-3">
+                            <i class="bx bx-home"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="mb-0">Rent Payment</h6>
+                                <span class="outgoing">-$1,200.00</span>
+                            </div>
+                            <small class="text-muted">Mar 1, 2025 • Housing</small>
+                        </div>
+                    </div>
+                    <div class="transaction-item d-flex align-items-center p-3">
+                        <div class="transaction-icon me-3">
+                            <i class="bx bx-car"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="mb-0">Gas Station</h6>
+                                <span class="outgoing">-$45.32</span>
+                            </div>
+                            <small class="text-muted">Feb 28, 2025 • Transportation</small>
+                        </div>
+                    </div>
+                    <div class="transaction-item d-flex align-items-center p-3">
+                        <div class="transaction-icon me-3">
+                            <i class="bx bx-restaurant"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="mb-0">Cheesecake Factory</h6>
+                                <span class="outgoing">-$68.50</span>
+                            </div>
+                            <small class="text-muted">Feb 26, 2025 • Food & Drink</small>
+                        </div>
+                    </div>
+                    <div class="transaction-item d-flex align-items-center p-3">
+                        <div class="transaction-icon me-3">
+                            <i class="bx bx-wifi"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="mb-0">Internet Bill</h6>
+                                <span class="outgoing">-$79.99</span>
+                            </div>
+                            <small class="text-muted">Feb 25, 2025 • Utilities</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <nav>
+                        <ul class="pagination justify-content-center mb-0">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add Funds Page -->
+        <div class="content-page" id="add-funds-page">
+            <h2 class="mb-4">Add Funds</h2>
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-header">Choose Payment Method</div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="card" checked>
+                                    <label class="form-check-label" for="card">
+                                        <i class="bx bx-credit-card me-2"></i> Credit/Debit Card
+                                    </label>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="bank">
+                                    <label class="form-check-label" for="bank">
+                                        <i class="bx bx-bank me-2"></i> Bank Transfer
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="paypal">
+                                    <label class="form-check-label" for="paypal">
+                                        <i class="bx bxl-paypal me-2"></i> PayPal
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div id="cardForm">
+                                <div class="mb-3">
+                                    <label for="cardNumber" class="form-label">Card Number</label>
+                                    <input type="text" class="form-control" id="cardNumber" placeholder="**** **** **** ****">
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="expDate" class="form-label">Expiration Date</label>
+                                        <input type="text" class="form-control" id="expDate" placeholder="MM/YY">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="cvv" class="form-label">CVV</label>
+                                        <input type="text" class="form-control" id="cvv" placeholder="***">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="cardName" class="form-label">Name on Card</label>
+                                    <input type="text" class="form-control" id="cardName" placeholder="John Doe">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-header">Amount</div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">Enter Amount</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="text" class="form-control" id="amount" placeholder="0.00">
+                                </div>
+                            </div>
+                            <div class="d-grid">
+                                <button class="btn btn-orange">Add Funds</button>
+                            </div>
+                            <div class="mt-3 small text-muted">
+                                <p>Funds will be available in your account immediately.</p>
+                                <p class="mb-0">Transaction fee: $0.00</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Quick Add</div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <button class="btn btn-outline-orange">$50</button>
+                                <button class="btn btn-outline-orange">$100</button>
+                                <button class="btn btn-outline-orange">$200</button>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <button class="btn btn-outline-orange">$500</button>
+                                <button class="btn btn-outline-orange">$1000</button>
+                                <button class="btn btn-outline-orange">$2000</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Profile Page -->
+        <div class="content-page" id="profile-page">
+            <div class="profile-header text-center">
+                <div class="mx-auto profile-avatar mb-3">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYTePaWRAj2MK2fqF4J0ykJKdSnCUdz2wiFQ&s" alt="User Avatar" class="img-fluid">
+                </div>
+                <h3 class="mb-1">John Doe</h3>
+                <p class="mb-0">Personal Account</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">Personal Information</div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="fullName" class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="fullName" value="John Doe">
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email Address</label>
+                                <input type="email" class="form-control" id="email" value="john.doe@example.com">
+                            </div>
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="phone" value="+1 (555) 123-4567">
+                            </div>
+                            <div class="mb-3">
+                                <label for="dob" class="form-label">Date of Birth</label>
+                                <input type="date" class="form-control" id="dob" value="1990-01-01">
+                            </div>
+                            <div class="d-grid">
+                                <button class="btn btn-orange">Save Changes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">Address Information</div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Street Address</label>
+                                <input type="text" class="form-control" id="address" value="123 Main Street">
+                            </div>
+                            <div class="mb-3">
+                                <label for="city" class="form-label">City</label>
+                                <input type="text" class="form-control" id="city" value="New York">
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="state" class="form-label">State</label>
+                                    <input type="text" class="form-control" id="state" value="NY">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="zip" class="form-label">Zip Code</label>
+                                    <input type="text" class="form-control" id="zip" value="10001">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="country" class="form-label">Country</label>
+                                <select class="form-select" id="country">
+                                    <option value="US" selected>United States</option>
+                                    <option value="CA">Canada</option>
+                                    <option value="UK">United Kingdom</option>
+                                    <option value="AU">Australia</option>
+                                </select>
+                            </div>
+                            <div class="d-grid">
+                                <button class="btn btn-orange">Save Address</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">Security</div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="currentPassword" class="form-label">Current Password</label>
+                                <input type="password" class="form-control" id="currentPassword">
+                            </div>
+                            <div class="mb-3">
+                                <label for="newPassword" class="form-label">New Password</label>
+                                <input type="password" class="form-control" id="newPassword">
+                            </div>
+                            <div class="mb-3">
+                                <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-control" id="confirmPassword">
+                            </div>
+                            <div class="d-grid">
+                                <button class="btn btn-orange">Update Password</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Settings Page -->
+        <div class="content-page" id="settings-page">
+            <h2 class="mb-4">Settings</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card settings-card mb-4">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="settings-icon">
+                                    <i class="bx bx-bell"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-1">Notifications</h5>
+                                    <p class="text-muted mb-0">Manage your notification preferences</p>
+                                </div>
+                                <div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card settings-card mb-4">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="settings-icon">
+                                    <i class="bx bx-lock-alt"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-1">Two-Factor Authentication</h5>
+                                    <p class="text-muted mb-0">Add an extra layer of security</p>
+                                </div>
+                                <div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card settings-card mb-4">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="settings-icon">
+                                    <i class="bx bx-envelope"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-1">Email Alerts</h5>
+                                    <p class="text-muted mb-0">Get notified about account activity</p>
+                                </div>
+                                <div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card settings-card mb-4">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="settings-icon">
+                                    <i class="bx bx-mobile-alt"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-1">SMS Alerts</h5>
+                                    <p class="text-muted mb-0">Receive text messages for important updates</p>
+                                </div>
+                                <div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card settings-card mb-4">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="settings-icon">
+                                    <i class="bx bx-paper-plane"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-1">Marketing Preferences</h5>
+                                    <p class="text-muted mb-0">Manage promotional communications</p>
+                                </div>
+                                <div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card settings-card">
+                        <div class="card-header">Theme Settings</div>
+                        <div class="card-body">
+                            <h6 class="mb-3">Choose Theme</h6>
+                            <div class="d-flex align-items-center">
+                                <div class="theme-option active" style="background-color: #ff6b00;" data-theme="orange"></div>
+                                <div class="theme-option" style="background-color: #007bff;" data-theme="blue"></div>
+                                <div class="theme-option" style="background-color: #28a745;" data-theme="green"></div>
+                                <div class="theme-option" style="background-color: #6f42c1;" data-theme="purple"></div>
+                                <div class="theme-option" style="background-color: #343a40;" data-theme="dark"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS with Popper -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Toggle sidebar on mobile
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('show');
+        });
+        
+        // Page navigation
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.content-page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show selected page
+            document.getElementById(pageId + '-page').classList.add('active');
+            
+            // Update sidebar active state
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Find and activate the sidebar item
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                if (item.getAttribute('data-page') === pageId) {
+                    item.classList.add('active');
+                }
+            });
+        }
+        
+        // Add event listeners to sidebar items
+        document.querySelectorAll('.sidebar-item[data-page]').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const pageId = this.getAttribute('data-page');
+                showPage(pageId);
+            });
+        });
+        
+        // Theme switching functionality
+        document.querySelectorAll('.theme-option').forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove active class from all options
+                document.querySelectorAll('.theme-option').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                
+                // Add active class to clicked option
+                this.classList.add('active');
+                
+                // Get theme color
+                const theme = this.getAttribute('data-theme');
+                
+                // Apply theme
+                console.log('Theme changed to: ' + theme);
+                
+                // navbar color
+                if (theme === 'orange') {
+                    document.querySelector('.navbar').style.backgroundColor = '#ff6b00';
+                } else if (theme === 'blue') {
+                    document.querySelector('.navbar').style.backgroundColor = '#007bff';
+                } else if (theme === 'green') {
+                    document.querySelector('.navbar').style.backgroundColor = '#28a745';
+                } else if (theme === 'purple') {
+                    document.querySelector('.navbar').style.backgroundColor = '#6f42c1';
+                } else if (theme === 'dark') {
+                    document.querySelector('.navbar').style.backgroundColor = '#343a40';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
